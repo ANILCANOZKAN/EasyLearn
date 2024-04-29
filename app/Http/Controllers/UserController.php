@@ -2,50 +2,51 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UserStoreRequest;
-use App\Models\UserModel;
+use App\Http\Requests\UserUpdateRequest;
+use App\Models\Lesson;
+use App\Models\User;
+use App\Models\UserClass;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    public function index(): \Illuminate\Http\JsonResponse
-    {
-        $users = UserModel::all();
-        return response()->json($users);
+    public function index(){
+        $users = User::latest()->filter(request(['search']))->get();
+        return $users;
     }
-
-    public function store(UserStoreRequest $request): \Illuminate\Http\JsonResponse
-    {
-        $users = new UserModel([
-            'email' => $request->input('email'),
-            'name' => $request->input('name'),
-            'surname' => $request->input('surname'),
-            'username' => $request->input('username'),
-            'password' => $request->input('password'),
-            'role' => $request->input('role'),
+    public function favorite(Request $request){
+        $user_id = $request->user()->id;
+        $data = $request->validate([
+            'slug' => ['required',
+                Rule::exists('lessons', 'slug')]
         ]);
-
-        $users ->save();
-        return response() ->json('User Created');
+        $lesson_id = Lesson::first('slug', $data['slug'])->pluck('id');
+        $favorites = UserClass::where('user_id', $user_id)->get();
+        if($favorites != null){
+            foreach ($favorites as $favorite){
+                if($favorite->lessons_id == $lesson_id[0]){
+                    $favorite->delete();
+                    return response(status: 200, content: "Deleted");
+                }
+            }
+        }
+        UserClass::create([
+            'user_id' => $user_id,
+            'lessons_id' => $lesson_id[0]
+        ]);
+        return response(status: 200, content: "Added");
     }
 
-    public function show($id)
-    {
-        //
-    }
+    public function isFavorite(Lesson $lesson,Request $request){
+        $user = $request->user();
+        $bool[0] = UserClass::where('lessons_id','=',$lesson->id)
+            ->where('user_id', '=',$user->id)->first();
 
-
-    public function update(Request $request, $id)
-    {
-        $users = UserModel::find($id);
-        $users -> update($request ->all());
-        return response()->json('User Created');
-    }
-
-    public function destroy($id)
-    {
-        $users = UserModel::find($id);
-        $users->delete();
-        return response()->json(' deleted!');
+        if($bool[0] != null){
+            return response(content: "true");
+        }else{
+            return response(content: "false");
+        }
     }
 }

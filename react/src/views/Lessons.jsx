@@ -13,20 +13,15 @@ export default function Lessons() {
       .then(({data}) => {
         setUser(data)
       })
-  }, [])
-
-  useEffect(() => {
     axiosClient.get('/user_classes')
       .then(({data}) => {
         setUserClasses(data)
       })
-  }, []);
-  useEffect(() => {
     axiosClient.get('/lessons')
       .then(({data}) => {
         setLessons(data)
       })
-  }, []);
+  }, [])
 
   const myId = user.id;
   const myLessonsId = [];
@@ -68,7 +63,7 @@ export default function Lessons() {
                           <img
                             src={lesson.thumbnail}
                             className="h-full w-full object-cover object-center group-hover:opacity-75"
-                            alt="zaa"/>
+                            />
                         </div>
                         <h3 className="mt-4 text-sm text-gray-700">{lesson.title}</h3>
                         <p className="mt-1 text-lg font-medium text-gray-900">{lesson.slug}</p>

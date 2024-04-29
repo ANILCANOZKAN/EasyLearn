@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\SignupRequest;
+use App\Models\Lesson;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Ramsey\Collection\Collection;
 
 class AuthController extends Controller
 {
@@ -65,6 +68,33 @@ class AuthController extends Controller
     public function me(Request $request)
     {
         return $request->user();
+    }
+
+    public function MyFavorites(Request $request)
+    {
+        $user = $request->user();
+        $favorites = $user->favorites;
+        return $favorites;
+    }
+
+    public function MyLessons(Request $request){
+        $me = $request->user();
+        $favorites = $me->favorites;
+
+        $response = [];
+        $count=0;
+        foreach ($favorites as $favorite) {
+            $lesson = Lesson::where('id', $favorite->lessons_id)->get();
+            $user = $lesson[0]->user;
+            $categories = $lesson[0]->categories($lesson[0]);
+            $json = Json::encode([
+                'lesson' => $lesson[0],
+                'categories' => $categories
+            ]);
+            $response[$count] = json_decode($json);
+            $count++;
+        }
+        return response($response);
     }
 
 }

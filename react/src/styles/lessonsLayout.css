@@ -11,12 +11,15 @@
   height: 100%;
   display: flex;
 }
-
+.lessbody{
+  background: #020821;
+  height: 754px;
+}
 .lessMenu{
+  background: #081A51;
   width: 25%;
   height: 100%;
   border: 1px solid black;
-  border-radius: 10px;
   overflow: auto;
 }
 
@@ -47,13 +50,13 @@
   align-items: center;
   padding: 5px;
   font-size: 18px;
-  background: #ececec;
+  background: #081A51;
   margin-bottom: 2px;
   cursor: pointer;
   position: relative;
-  color: black;
-  border-radius: 10px;
-  border: 1px solid black;
+  color: white;
+  border: 1px solid #183585;
+
 }
 
 .lessMenu .label::after{
@@ -69,8 +72,7 @@
 }
 
 .lessMenu .accordion .content{
-  background-color: #ececec;
-  border-radius: 10px;
+  background-color: #020c2a;
   text-align: left;
   max-height: 0;
   overflow: hidden;
@@ -82,22 +84,20 @@
 }
 
 .lessMenu .accordion .content button{
-  background-color: blue;
+  background-color: #111e4f;
   padding: 5px;
   border-radius: 3px;
-  color: white;
+  color: #728eff;
   margin: 3px;
   width: 90%;
-  border: 1px solid blue;
 }
 .lessMenu .accordion .content button:hover{
-  background-color: white;
-  color: blue;
+  background-color: #728eff;
+  color: #111e4f;
 }
 
 .lessMenu .accordion input[type="radio"]:checked + label + .content{
   max-height: 600px;
-  padding: 10px 10px;
 }
 
 .lessMenu .accordion input[type="radio"]:checked + label::after{
@@ -115,4 +115,19 @@
 
 .lessText{
   display: none;
+}
+
+.lessNav{
+  background: #081A51;
+  height: 50px;
+  width: 100%;
+  text-align: center;
+}
+.lessNav a{
+  color: white;
+  margin: 15px;
+  padding: 10px;
+}
+.lessNav a:hover{
+  color: #728eff;
 }

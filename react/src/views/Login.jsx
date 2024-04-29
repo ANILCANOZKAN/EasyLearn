@@ -1,10 +1,10 @@
-import {Link} from "react-router-dom";
+import {Link, Navigate} from "react-router-dom";
 import {useState} from "react";
 import axiosClient from "../axios.js";
 import {useStateContext} from "../context/ContextProvider.jsx";
 
 export default function Login() {
-  const {setUser, setToken} = useStateContext();
+  const {setUser, setToken, setRole} = useStateContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState({__html: ""});
@@ -20,6 +20,7 @@ export default function Login() {
       })
       .then(({data}) => {
         setUser(data.user)
+        setRole(data.user.role)
         setToken(data.token)
       })
       .catch((error) => {
@@ -37,12 +38,13 @@ export default function Login() {
     <>
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+          <h3 className="text-blue-400 hover:text-blue-500 text-center"><Link to="/home">Anasayfa</Link></h3>
           <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
             Hesabınıza Giriş Yapın
           </h2>
         </div>
-        {error.__html && (<p dangerouslySetInnerHTML={error}></p>)}
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+        {error.__html && (<p className="text-center text-red-500 text-xs" dangerouslySetInnerHTML={error}></p>)}
+        <div className="mt-5 sm:mx-auto sm:w-full sm:max-w-sm">
           <form onSubmit={onSubmit} className="space-y-6">
             <div>
               <input id="email" type="text" name="" required=""

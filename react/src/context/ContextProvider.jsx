@@ -4,6 +4,7 @@ const StateContext = createContext(
   {
     user: null,
     categories: null,
+    role: null,
     token: null,
     lessons: null,
     userClasses: null,
@@ -13,6 +14,8 @@ const StateContext = createContext(
     setUser: () => {
     },
     setToken: () => {
+    },
+    setRole: () => {
     },
     setLessons: () => [],
     setCategories: () => [],
@@ -32,6 +35,7 @@ export const ContextProvider = ({children}) => {
   const [lectureVideos, setLectureVideos] = useState([]);
   const [videos, setVideos] = useState([]);
   const [token, _setToken] = useState(localStorage.getItem('TOKEN') || '');
+  const [role, _setRole] = useState(localStorage.getItem('ROLE') || Number);
 
   const setToken = (token) => {
     _setToken(token)
@@ -41,6 +45,14 @@ export const ContextProvider = ({children}) => {
       localStorage.removeItem('TOKEN')
     }
   }
+  const setRole = (role) => {
+    _setRole(role)
+    if (role) {
+      localStorage.setItem('ROLE', role);
+    } else {
+      localStorage.removeItem('ROLE')
+    }
+  }
 
   return (
     <StateContext.Provider value={{
@@ -48,12 +60,14 @@ export const ContextProvider = ({children}) => {
       categories,
       token,
       lessons,
+      role,
       userClasses,
       lectureClasses,
       lectureVideos,
       videos,
       setUser,
       setToken,
+      setRole,
       setLessons,
       setCategories,
       setUserClasses,

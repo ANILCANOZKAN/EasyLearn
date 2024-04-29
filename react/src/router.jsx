@@ -13,33 +13,46 @@ import Users from "./views/Users.jsx";
 import MainPage from "./views/MainPage.jsx";
 import Sss from "./views/sss.jsx";
 import AboutUs from "./views/aboutUs.jsx"
+import AdminLayout from "./components/AdminLayout.jsx";
 import LessonLayout from "./components/lessonLayout.jsx"
 import AllLessons from "./views/allLessons.jsx";
-import LessonInfoLayout from "./components/LessonInfoLayout.jsx";
-import EditLesson from "./views/EditLesson.jsx";
-import AddLesson from "./views/AddLesson.jsx";
+import AllTeachers from "./views/allTeachers.jsx";
+import Lesson from "./views/lesson.jsx";
+import MyLessons from "./views/MyLessons.jsx";
+
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/home',
+    element: <MainPage/>,
+  },
+  {
+    path: "/lessons",
+    element: <AllLessons/>
+  },
+  {
+    path: "/teachers",
+    element: <AllTeachers/>
+  },
+  {
+    path: "/lesson/*",
+    element: <Lesson/>
+  },
+  {
+    path: "/sss",
+    element: <Sss/>
+  },
+  {
+    path: "/aboutus",
+    element: <AboutUs/>
+  },
+  {
+    path: '*',
+    element: <NotFound/>
+  },
+  {
     element: <GuestLayout/>,
     children: [
-      {
-        path: "/",
-        element: <Index/>
-      },
-      {
-        path: "/index",
-        element: <Index/>
-      },
-      {
-        path: "/sss",
-        element: <Sss/>
-      },
-      {
-        path: "/aboutus",
-        element: <AboutUs/>
-      },
       {
         path: '/login',
         element: <Login/>
@@ -48,31 +61,24 @@ const router = createBrowserRouter([
         path: '/signup',
         element: <Signup/>
       },
-      {
-        path: "/allLessons",
-        element: <AllLessons/>
-      },
-      {
-        path: '/lessonsInfo/*',
-        element: <LessonInfoLayout/>,
-      },
     ]
   },
   {
-    path: "/",
     element: <DefaultLayout/>,
     children: [
       {
-        path: '/main',
-        element: <MainPage/>
-      },
-      {
-        path: '/lessons',
-        element: <Lessons/>,
-      },
-      {
-        path: '/lessons/*',
-        element: <LessonLayout/>,
+        path: "/admin",
+        element: <AdminLayout/>,
+        children: [
+          {
+            path: '/admin',
+            element: <MainPage/>
+          },
+          {
+            path: 'users',
+            element: <Users/>
+          },
+        ]
       },
       {
         path: '/messages',
@@ -87,30 +93,14 @@ const router = createBrowserRouter([
         element: <Calendar/>
       },
       {
-        path: '/users',
-        element: <Users/>
+        path: 'MyLessons',
+        element: <MyLessons/>
       },
       {
-        path: "/all",
-        element: <AllLessons/>
+        path: '/lesson/content/*',
+        element: <LessonLayout/>,
       },
-      {
-        path: '/lessonzInfo/*',
-        element: <LessonInfoLayout/>,
-      },
-      {
-        path: "editlesson",
-        element: <EditLesson/>,
-      },
-      {
-        path: "addlesson",
-        element: <AddLesson/>
-      }
     ]
-  },
-  {
-    path: '*',
-    element: <NotFound/>
   },
 ])
 

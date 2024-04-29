@@ -1,133 +1,99 @@
-import axios from 'axios';
 import React, {useEffect, useState} from "react";
 import "../styles/users.css"
-import {Navigate} from "react-router-dom";
-import userComp from "../components/userComponent.jsx"
-import {useStateContext} from "../context/ContextProvider.jsx";
 import axiosClient from "../axios.js";
+import Admin from "../components/Admin.jsx";
+import Stack from "@mui/material/Stack";
+import {Alert} from "@mui/material";
+import {useTime, useTimer} from "react-timer-hook";
 
 export default function Users() {
-  const {user, token, lessons, setUser, setToken, setLessons} = useStateContext()
-  useEffect(() => {
-    axiosClient.get('/me')
-      .then(({data}) => {
-        setUser(data)
-      })
-  }, [])
-  userComp(user.role);
-
-  const [id, setId] = useState('');
-  const [email, setEmail] = useState('');
+  const [id, setId] = useState("");
+  const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [surname, setSurname] = useState("");
   const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState("");
+  const [role, setRole] = useState();
+  const [message, setMessage] = useState(null);
+  const [status, setStatus] = useState(null);
   const [users, setUsers] = useState([]);
+  const time = new Date();
 
   useEffect(() => {
     (async () => await Load())();
   }, []);
 
   async function Load() {
-    const result = await axios.get(
-      "http://127.0.0.1:8000/api/users");
+    const result = await axiosClient.get(
+      "/users");
     setUsers(result.data);
-    console.log(result.data);
   }
 
-  async function save(event) {
-    event.preventDefault();
-    try {
-      await axios.post("http://127.0.0.1:8000/api/save",
-        {
-          email: email,
-          name: name,
-          surname: surname,
-          username: username,
-          password: password,
-          role: role,
-        });
-      alert("User Registation Successfully");
-      setEmail("");
-      setName("");
-      setSurname("");
-      setUsername("");
-      setPassword("");
-      setRole("");
-      Load();
-
-    } catch (err) {
-      alert("User Registation Failedy");
-    }
-  }
-
-  async function editEmployee(users) {
+  async function editUser(users) {
     setId(users.id);
     setEmail(users.email);
     setName(users.name);
     setSurname(users.surname);
     setUsername(users.username);
-    setPassword(users.password);
     setRole(users.role);
-  }
-
-
-  //Silme
-  async function DeleteEmployee(id) {
-    await axios.delete("http://127.0.0.1:8000/api/delete/" + id);
-    alert("Employee deleted Successfully");
-    await Load();
   }
 
   //update
   async function update(event) {
     event.preventDefault();
 
-    try {
-
-      await axios.put("http://127.0.0.1:8000/api/update/" + users.find(u => u.id === id).id || id,
+      axiosClient.patch("/user",
         {
           id: id,
-          email: email,
           name: name,
           surname: surname,
           username: username,
-          password: password,
           role: role,
-
+        }).then(({data}) => {
+        setMessage(data)
+        setStatus("success")
+        axiosClient.get(
+          "/users")
+          .then(({data}) => {
+            setUsers(data);
+          })
+      })
+        .catch(() => {
+          setMessage("Kullanıcı Güncellenemedi.")
+          setStatus("error")
         });
-      alert("Registation Updateddddd");
-      setId("");
-      setEmail("");
-      setName("");
-      setSurname("");
-      setUsername("");
-      setPassword("");
-      setRole("");
-      await Load();
+  }
+  async function del(event){
+    event.preventDefault();
 
-    } catch (err) {
-      alert("User Registation Failedx");
-    }
+    axiosClient.delete("/user",
+      {
+        data: {
+          username: username
+        }
+      });
   }
 
-  if (user.role !==2){
-    return <Navigate to="/" />
-  }
 
   return (
-    <>
+      <Admin>
+        {message != null ? (
+          <Stack sx={{width: '290px', position: 'absolute', top: '650px', left: '1200px'}} spacing={2}>
+            <Alert severity={status} onClose={() => {setMessage(null)}}>{message}</Alert>
+          </Stack>
+        ) : (
+          <>
+          </>
+          )
+        }
       <div className="userContainer">
         <form className="userForm">
           <div className="grid gap-6 mb-6 md:grid-cols-2">
             <div>
-
               <label htmlFor="first_name"
-                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ad</label>
+                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-blue">Ad</label>
               <input type="text" id="first_name"
                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                     placeholder="John" required
+                     placeholder="Ad" required
                      value={name}
                      onChange={(event) => {
                        setName(event.target.value);
@@ -136,10 +102,10 @@ export default function Users() {
 
             <div>
               <label htmlFor="last_name"
-                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Soyad</label>
+                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-blue">Soyad</label>
               <input type="text" id="last_name"
                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                     placeholder="Doe" required
+                     placeholder="Soyad" required
                      value={surname}
                      onChange={(event) => {
                        setSurname(event.target.value);
@@ -147,21 +113,22 @@ export default function Users() {
             </div>
             <div>
               <label htmlFor="last_name"
-                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
+                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-blue">Email</label>
               <input type="email" id="last_name"
                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                     placeholder="Doe" required
+                     placeholder="E-mail" required
                      value={email}
                      onChange={(event) => {
                        setEmail(event.target.value);
                      }}/>
             </div>
             <div>
-              <label htmlFor="last_name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Kullanıcı
+              <label htmlFor="last_name" className="block mb-2 text-sm font-medium
+              text-gray-900 dark:text-blue">Kullanıcı
                 Adı</label>
               <input type="text" id="last_name"
                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                     placeholder="Doe" required
+                     placeholder="Kullanıcı Adı" required
                      value={username}
                      onChange={(event) => {
                        setUsername(event.target.value);
@@ -169,57 +136,62 @@ export default function Users() {
             </div>
             <div>
               <label htmlFor="last_name"
-                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rolü</label>
+                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-blue">Rolü</label>
               <input type="text" id="last_name"
                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                     placeholder="Doe" required
+                     placeholder="Rol" required
                      value={role}
                      onChange={(event) => {
                        setRole(event.target.value);
                      }}/>
             </div>
           </div>
-          <button onClick={save}
-                  className="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded">
-            Register
-          </button>
           <button onClick={update}
                   className="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded">
-            Update
+            Düzenle
+          </button>
+          <button onClick={del}
+                  className="ml-2 bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded">
+            Sil
           </button>
         </form>
         <div className="userList">
           <table className="userTable">
             <thead>
             <tr>
-              <th scope="col">Id</th>
-              <th scope="col">Email</th>
+              <th scope="col">E-mail</th>
               <th scope="col">Ad</th>
               <th scope="col">Soyad</th>
               <th scope="col">Kullanıcı Adı</th>
               <th scope="col">Rol</th>
-              <th scope="col">Option</th>
+              <th scope="col"></th>
             </tr>
             </thead>
             {users.map(function fn(user) {
               return (
                 <tbody>
                 <tr>
-                  <th scope="row">{user.id} </th>
                   <td>{user.email}</td>
                   <td>{user.name}</td>
                   <td>{user.surname}</td>
                   <td>{user.username}</td>
-                  <td>{user.role}</td>
+                  <td>{
+                    user.role == 0 ? (
+                      <p>Öğrenci</p>
+                    ) : (
+                      user.role == 1 ? (
+                        <p>Öğretmen</p>
+                      ) : (
+                        <p>Admin</p>
+                      )
+                    )
+                  }</td>
 
                   <td>
-                    <button onClick={() => editEmployee(user)}
-                            className="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded">
-                      Edit
-                    </button>
-                    <button onClick={() => DeleteEmployee(user.id)}
-                            className="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded">
-                      Delete
+                    <button onClick={() => editUser(user)}
+                            className="bg-transparent hover:bg-blue-500 text-blue-700
+                            font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded">
+                      Düzenle
                     </button>
                   </td>
                 </tr>
@@ -229,6 +201,6 @@ export default function Users() {
           </table>
         </div>
       </div>
-    </>
+      </Admin>
   );
 }
